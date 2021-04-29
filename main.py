@@ -1,5 +1,5 @@
 import tkinter as tk
-
+#anden slet klik virker ikke
 class Application(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
@@ -74,13 +74,19 @@ class Application(tk.Frame):
         print("RINGRINGRING")
 
     def remove(self, sender_id):
+        print("")
         print(self.entries)
-
         self.people.pop(sender_id)  # Remove from the "People" list
 
 
 
-        if self.entries > 0:
+        if self.entries >= 0:
+            # Un-display the lowest entry
+            self.tlf[self.entries].destroy()
+            self.frames[self.entries].destroy()
+            self.id[self.entries].destroy()
+            self.names[self.entries].destroy()
+            
             for i in range(self.entries):  # RE-display all current entries (deleted one excluded)
                 tk.Label(self, text=self.people[i][0], borderwidth=4).grid(row=i + 2, column=0)
                 tk.Label(self, text=self.people[i][1], borderwidth=4).grid(row=i + 2, column=1)
@@ -91,14 +97,9 @@ class Application(tk.Frame):
             self.id.pop(sender_id)
             self.tlf.pop(sender_id)
             self.frames.pop(sender_id)
-        # Un-display the lowest entry
-        self.tlf[self.entries].destroy()
-        self.frames[self.entries].destroy()
-        self.id[self.entries].destroy()
-        self.names[self.entries].destroy()
 
         self.entries -= 1  # Decrement size of people
-
+        print(self.entries)
 
 
 #Actually start the program
