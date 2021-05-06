@@ -22,3 +22,8 @@ Manual AT command issueing
 Modem test sequence
 Modem model detection
 
+# Requirements
+The following libaries are required
+nums_from_string
+
+

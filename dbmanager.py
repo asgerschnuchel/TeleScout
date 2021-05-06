@@ -16,10 +16,10 @@ def create_db(filename):
     #Create DB connection
     
     sql_create_patrols_table = """ CREATE TABLE IF NOT EXISTS patrols (
-                                        id integer PRIMARY KEY,
-                                        name text NOT NULL,
+                                        id integer,
+                                        name text,
                                         cellnumber integer,
-                                        phone ID integer
+                                        phoneid integer
                                     ); """
 
     # create tables
@@ -28,6 +28,7 @@ def create_db(filename):
         create_table(conn, sql_create_patrols_table)
     else:
         print("Error! cannot create the database connection.")
+    return
 
 
 def create_table(conn, create_table_sql):
@@ -42,9 +43,55 @@ def create_table(conn, create_table_sql):
         c.execute(create_table_sql)
     except sqlite3.Error as e:
         print(e)
-
-    
-def add_patrol(name,id,phonenumber):
     return
 
-create_db("test.db")
+    
+def add_patrol(id, name, phonenumber, phoneid):
+    data = (id, name, phonenumber, phoneid)
+    conn = connect_db("test.db")
+    """
+    Create a new patrol in the database
+    """
+    sql = ''' INSERT INTO patrols(id,name,cellnumber,phoneid)
+              VALUES(?,?,?,?) '''
+    cur = conn.cursor()
+    cur.execute(sql, data)
+    conn.commit()
+    return
+
+def edit_patrol(id, newname, newnumber, newphone):
+    conn = connect_db("test.db")
+    data = (newname, newnumber, newphone, id)
+    """
+    update existing patrol data by id
+    """
+    sql = ''' UPDATE patrols
+              SET name = ? ,
+                  cellnumber = ? ,
+                  phoneid = ?
+              WHERE id = ?'''
+    cur = conn.cursor()
+    cur.execute(sql, data)
+    conn.commit()
+    return
+
+
+
+def delete_patrol(id):
+    conn = connect_db("test.db")
+    """
+    Delete a patrol by task id
+    """
+    sql = 'DELETE FROM patrols WHERE id=?'
+    cur = conn.cursor()
+    cur.execute(sql, (id,))
+    conn.commit()
+
+def delete_all_patrols():
+    """
+    Delete all patrol data from the database
+    """
+    sql = 'DELETE FROM tasks'
+    cur = conn.cursor()
+    cur.execute(sql)
+    conn.commit()
