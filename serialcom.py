@@ -6,6 +6,7 @@ import serial.tools.list_ports
 import re
 import io
 
+
 def comdetect(): #Searches for avalible ports on system and returns highest port number, which works most of the time :D If this does not work, resolve by to hardcode COM port in ATlibrary
     print('Searching avalible ports on system...')
     ports = serial.tools.list_ports.comports(include_links=False)
@@ -39,6 +40,13 @@ def modemready(port): #issues AT command and looks for right echo back. Returns 
     else:
         return(False)
 
+def readline(port): #read content on serial port. Returns the last 64 bytes recieved from target in readable text
+    s = serial.Serial(port, timeout=1)
+    message = ""
+    byte = ""
+    message = s.read(64).decode()
+    return message
+
 def sendtermination(port): #issues equivilant of ctrl+z on serial connection
     s = serial.Serial(port, timeout=1)
     command_variable = chr(26)
@@ -48,13 +56,6 @@ def sendcommand(command, port, prefix): #send commmand to serial port. Prefix pa
     s = serial.Serial(port, timeout=1)
     print(str(prefix + command + "\r\n"))
     s.write(str(prefix + command + "\r\n").encode())
-
-def readline(port): #read content on serial port. Returns the last 64 bytes recieved from target in readable text
-    s = serial.Serial(port, timeout=1)
-    message = ""
-    byte = ""
-    message = s.read(64).decode()
-    return message
 
 def cmereturn(port): #used to recieve cme number/index of message in buffer when sending SMS. Returns buffer location of last created sms if used correctly 
     #open serial connection with target
@@ -69,7 +70,6 @@ def cmereturn(port): #used to recieve cme number/index of message in buffer when
     print(numbers)
     return(numbers[len(numbers)-1])
 
-def cme(port): #Clears SMS atoreage on the module. This is required as more than 2 consequtive long messages might not be able so send ue to lack of SMS buffer.
-    s = serial.Serial(prot, timeout = 1)
+def clearmem(port): #Clears SMS atoreage on the module. This is required as more than 2 consequtive long messages might not be able so send ue to lack of SMS buffer.
     sendcommand("CMGD=4", port, "AT+")
     readline(port)

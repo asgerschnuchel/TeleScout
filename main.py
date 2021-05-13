@@ -1,6 +1,9 @@
 import tkinter as tk
+import dbmanager
 #anden slet klik virker ikke
 class Application(tk.Frame):
+    #class-global variables go here
+    
     def __init__(self, master=None):
         super().__init__(master)
         self.entries = -1
@@ -26,24 +29,35 @@ class Application(tk.Frame):
 
         self.inputTLF = tk.Entry(self, bd=4)
         self.inputTLF.grid(row=0, column=2)
+
+        self.inputPhoneID = tk.Entry(self, bd=4)
+        self.inputPhoneID.grid(row=0, column=3)
         # Row 0: "Add" button
         self.addButton = tk.Button(self, text="Add", command=self.AddMember)
-        self.addButton.grid(row=0, column=3)
+        self.addButton.grid(row=0, column=4)
 
         # Row 1: Labels
-        tk.Label(self, text = "Navn", borderwidth = 4).grid(row=1, column=0)
-        tk.Label(self, text="ID", borderwidth=4).grid(row=1, column=1)
+        tk.Label(self, text="ID", borderwidth = 4).grid(row=1, column=0)
+        tk.Label(self, text="Navn", borderwidth=4).grid(row=1, column=1)
         tk.Label(self, text="Tlf", borderwidth=4).grid(row=1, column=2, ipadx=30)
-        tk.Label(self, text="   ", borderwidth=4).grid(row=1, column=3)
+        tk.Label(self, text="Telefon ID", borderwidth=4).grid(row=1, column=3)
+        tk.Label(self, text="   ", borderwidth=4).grid(row=1, column=4)
 
     # What the "add" button does
     def AddMember(self):
-        self.people.append([self.inputName.get(), self.inputID.get(), self.inputTLF.get()]) #Add textbox-text to list
-        self.entries += 1
-        self.updateMembers()
+        ID = self.inputID.get()
+        Name = self.inputName.get()
+        Cellnumber = self.inputTLF.get()
+        Phoneid = self.inputPhoneID.get()
+        dbmanager.add_patrol(*[Name, ID, Cellnumber, Phoneid])
+        self.updateMembers(ID)
+        #self.people.append([self.inputName.get(), self.inputID.get(), self.inputTLF.get()]) #Add textbox-text to list
+        #self.entries += 1
+        #self.updateMembers()
+        
 
 
-    def updateMembers(self):  # Display new member
+    def updateMembers(self, patrolid):  # Display new member
         # This is declared to make sure that self.entries is assigned by value, and not by index
         entry = self.entries
         # Add the new name from 'people' to the list of name entries, and display
@@ -82,17 +96,20 @@ class Application(tk.Frame):
 
         if self.entries >= 0:
             # Un-display the lowest entry
-            self.tlf[self.entries].destroy()
-            self.frames[self.entries].destroy()
-            self.id[self.entries].destroy()
-            self.names[self.entries].destroy()
+            print("undisplayed")
+            self.tlf[sender_id].destroy()
+            self.frames[sender_id].destroy()
+            self.id[sender_id].destroy()
+            self.names[sender_id].destroy()
             
-            for i in range(self.entries):  # RE-display all current entries (deleted one excluded)
+            for i in range(self.entries - 1):  # RE-display all current entries (deleted one excluded)
+                print("redisplayed")
                 tk.Label(self, text=self.people[i][0], borderwidth=4).grid(row=i + 2, column=0)
                 tk.Label(self, text=self.people[i][1], borderwidth=4).grid(row=i + 2, column=1)
                 tk.Label(self, text=self.people[i][2], borderwidth=4).grid(row=i + 2, column=2)
 
              # Remove deleted user's info in the display lists.
+            print("removed from list")
             self.names.pop(sender_id)
             self.id.pop(sender_id)
             self.tlf.pop(sender_id)

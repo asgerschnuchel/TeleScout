@@ -16,10 +16,11 @@ def create_db(filename):
     #Create DB connection
     
     sql_create_patrols_table = """ CREATE TABLE IF NOT EXISTS patrols (
-                                        id integer,
-                                        name text,
-                                        cellnumber integer,
-                                        phoneid integer
+                                        id,
+                                        name,
+                                        patrolname,
+                                        cellnumber,
+                                        phoneid
                                     ); """
 
     # create tables
@@ -46,36 +47,42 @@ def create_table(conn, create_table_sql):
     return
 
     
-def add_patrol(id, name, phonenumber, phoneid):
+def add_patrol(id, name, patrolname, phonenumber, phoneid):
     data = (id, name, phonenumber, phoneid)
     conn = connect_db("test.db")
     """
     Create a new patrol in the database
     """
-    sql = ''' INSERT INTO patrols(id,name,cellnumber,phoneid)
-              VALUES(?,?,?,?) '''
+    sql = ''' INSERT INTO patrols(id,name,patrolname,cellnumber,phoneid)
+              VALUES(?,?,?,?,?) '''
     cur = conn.cursor()
     cur.execute(sql, data)
     conn.commit()
     return
 
-def edit_patrol(id, newname, newnumber, newphone):
+def edit_patrol(newname, newpatrolname, newnumber, newphone, newphoneid, id):
     conn = connect_db("test.db")
-    data = (newname, newnumber, newphone, id)
+    data = (newname, newnumber, newphone, newphoneid, id)
     """
     update existing patrol data by id
     """
     sql = ''' UPDATE patrols
-              SET name = ? ,
-                  cellnumber = ? ,
-                  phoneid = ?
-              WHERE id = ?'''
+                SET name,
+                patrolname,
+                cellnumber,
+                phoneid,
+                WHERE id = ?
+                VALUES(?,?,?,?,?,?)'''
     cur = conn.cursor()
     cur.execute(sql, data)
     conn.commit()
     return
 
-
+def get_patrols():
+    conn = connect_db("test.db")
+    cur = conn.cursor()
+    cur.execute("SELECT *, id FROM patrols")
+    return(cur.fetchall())
 
 def delete_patrol(id):
     conn = connect_db("test.db")
@@ -95,3 +102,5 @@ def delete_all_patrols():
     cur = conn.cursor()
     cur.execute(sql)
     conn.commit()
+
+create_db("test.db")
