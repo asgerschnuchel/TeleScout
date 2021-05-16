@@ -1,126 +1,246 @@
-import tkinter as tk
+from tkinter import *
+from PIL import ImageTk,Image
+import sqlite3
 import dbmanager
-#anden slet klik virker ikke
-class Application(tk.Frame):
-    #class-global variables go here
-    
-    def __init__(self, master=None):
-        super().__init__(master)
-        self.entries = -1
-        self.people = []
-
-        self.names = []
-        self.id = []
-        self.tlf = []
-        self.frames = []
-
-        self.master = master
-        self.pack()
-        self.create_widgets()
-
-    #Create the first two rows of the application
-    def create_widgets(self):
-        # Row 0: Input boxes
-        self.inputName = tk.Entry(self, bd=4)
-        self.inputName.grid(row=0, column=0)
-
-        self.inputID = tk.Entry(self, bd=4)
-        self.inputID.grid(row=0, column=1)
-
-        self.inputTLF = tk.Entry(self, bd=4)
-        self.inputTLF.grid(row=0, column=2)
-
-        self.inputPhoneID = tk.Entry(self, bd=4)
-        self.inputPhoneID.grid(row=0, column=3)
-        # Row 0: "Add" button
-        self.addButton = tk.Button(self, text="Add", command=self.AddMember)
-        self.addButton.grid(row=0, column=4)
-
-        # Row 1: Labels
-        tk.Label(self, text="ID", borderwidth = 4).grid(row=1, column=0)
-        tk.Label(self, text="Navn", borderwidth=4).grid(row=1, column=1)
-        tk.Label(self, text="Tlf", borderwidth=4).grid(row=1, column=2, ipadx=30)
-        tk.Label(self, text="Telefon ID", borderwidth=4).grid(row=1, column=3)
-        tk.Label(self, text="   ", borderwidth=4).grid(row=1, column=4)
-
-    # What the "add" button does
-    def AddMember(self):
-        ID = self.inputID.get()
-        Name = self.inputName.get()
-        Cellnumber = self.inputTLF.get()
-        Phoneid = self.inputPhoneID.get()
-        dbmanager.add_patrol(*[Name, ID, Cellnumber, Phoneid])
-        self.updateMembers(ID)
-        #self.people.append([self.inputName.get(), self.inputID.get(), self.inputTLF.get()]) #Add textbox-text to list
-        #self.entries += 1
-        #self.updateMembers()
-        
+import ATlibrary
 
 
-    def updateMembers(self, patrolid):  # Display new member
-        # This is declared to make sure that self.entries is assigned by value, and not by index
-        entry = self.entries
-        # Add the new name from 'people' to the list of name entries, and display
-        self.names.append(tk.Label(self, text=self.people[entry][0], borderwidth=4))
-        self.names[entry].grid(row=entry + 2, column=0)
-        # -//- but with ids
-        self.id.append(tk.Label(self, text=self.people[entry][1], borderwidth=4))
-        self.id[entry].grid(row=entry + 2, column=1)
-        # -//- but with phone numbers
-        self.tlf.append(tk.Label(self, text=self.people[entry][2], borderwidth=4))
-        self.tlf[entry].grid(row=entry + 2, column=2)
-        # Create a frame to but multiple buttons in one grid-cell
-        self.frames.append(tk.Frame(self))
-        self.frames[entry].grid(row=entry + 2, column=3)
-        #Create such buttons
-        removeButton = tk.Button(self.frames[entry], text="X", command=lambda: self.remove(entry))
-        msgButton = tk.Button(self.frames[entry], text="SMS", command=lambda: self.sendSMS(entry))
-        callButton = tk.Button(self.frames[entry], text="Ring", command=lambda: self.makeCall(entry))
-        #Display such buttons
-        removeButton.pack(side='top')
-        callButton.pack(side = 'right')
-        msgButton.pack(side='left')
+root = Tk()
+root.title('TeleScout')
+#root.iconbitmap('path_to_bmp')
+root.geometry("525x800")
 
-    def sendSMS(self, sender_id):
-        print("SMSMSMSM")
-
-    def makeCall(self, sender_id):
-        print("RINGRINGRING")
-
-    def remove(self, sender_id):
-        print("")
-        print(self.entries)
-        self.people.pop(sender_id)  # Remove from the "People" list
+query_label = Label(root, text="")
+query_label.grid(row=14, column=0, columnspan=2)
 
 
+def update():
+	record_id = delete_box.get()
+	dbmanager.edit_patrol(f_name_editor.get(), l_name_editor.get(), address_editor.get(), city_editor.get(), record_id)
+	editor.destroy()
+	root.deiconify()
 
-        if self.entries >= 0:
-            # Un-display the lowest entry
-            print("undisplayed")
-            self.tlf[sender_id].destroy()
-            self.frames[sender_id].destroy()
-            self.id[sender_id].destroy()
-            self.names[sender_id].destroy()
-            
-            for i in range(self.entries - 1):  # RE-display all current entries (deleted one excluded)
-                print("redisplayed")
-                tk.Label(self, text=self.people[i][0], borderwidth=4).grid(row=i + 2, column=0)
-                tk.Label(self, text=self.people[i][1], borderwidth=4).grid(row=i + 2, column=1)
-                tk.Label(self, text=self.people[i][2], borderwidth=4).grid(row=i + 2, column=2)
+# Create Edit function to update a record
+def edit():
+	root.withdraw()
+	global editor
+	editor = Tk()
+	editor.title('Opdater patruljeinformation')
+	#editor.iconbitmap('')
+	editor.geometry("400x300")
+	# Create a database or connect to one
+	conn = sqlite3.connect('test.db')
+	# Create cursor
+	c = conn.cursor()
 
-             # Remove deleted user's info in the display lists.
-            print("removed from list")
-            self.names.pop(sender_id)
-            self.id.pop(sender_id)
-            self.tlf.pop(sender_id)
-            self.frames.pop(sender_id)
+	record_id = delete_box.get()
+	# Query the database
+	#c.execute("SELECT * FROM patrols WHERE id = " + record_id)
+	#records = c.fetchall()
+	records = dbmanager.get_patrols()
+	
+	#Create Global Variables for text box names
+	global f_name_editor
+	global l_name_editor
+	global address_editor
+	global city_editor
 
-        self.entries -= 1  # Decrement size of people
-        print(self.entries)
+	# Create Text Boxes
+	f_name_editor = Entry(editor, width=30)
+	f_name_editor.grid(row=0, column=1, padx=20, pady=(10, 0))
+	l_name_editor = Entry(editor, width=30)
+	l_name_editor.grid(row=1, column=1)
+	address_editor = Entry(editor, width=30)
+	address_editor.grid(row=2, column=1)
+	city_editor = Entry(editor, width=30)
+	city_editor.grid(row=3, column=1)
+	
+	# Create Text Box Labels
+	f_name_label = Label(editor, text="Patruljenavn")
+	f_name_label.grid(row=0, column=0, pady=(10, 0))
+	l_name_label = Label(editor, text="Ledernavn")
+	l_name_label.grid(row=1, column=0)
+	address_label = Label(editor, text="Telefonnummer")
+	address_label.grid(row=2, column=0)
+	city_label = Label(editor, text="Telefon-ID")
+	city_label.grid(row=3, column=0)
+
+	#Loop thru results
+	for record in records:
+		f_name_editor.insert(0, record[0])
+		l_name_editor.insert(0, record[1])
+		address_editor.insert(0, record[2])
+		city_editor.insert(0, record[3])
+
+	
+	# Create a Save Button To Save edited record
+	edit_btn = Button(editor, text="Gen ændringer", command=update)
+	edit_btn.grid(row=6, column=0, columnspan=2, pady=10, padx=10, ipadx=145)
+
+	
 
 
-#Actually start the program
-root = tk.Tk()
-app = Application(master=root)
-app.mainloop()
+# Create Function to Delete A Record
+def delete():
+	dbmanager.delete_patrol(delete_box.get())
+	delete_box.delete(0, END)
+	query()
 
+
+# Create Submit Function For database
+def submit():
+	# Create a database or connect to one
+	conn = sqlite3.connect('test.db')
+	# Create cursor
+	c = conn.cursor()
+
+	# Insert Into Table
+	c.execute("INSERT INTO patrols VALUES (:id, :patrolname, :leadername, :phone, :phoneid)",
+			{
+				'id': id.get(),
+				'patrolname': patrolname.get(),
+				'leadername': leadername.get(),
+				'phone': phone.get(),
+				'phoneid': phoneid.get(),
+			})
+
+
+	#Commit Changes
+	conn.commit()
+
+	# Close Connection 
+	conn.close()
+	# Clear The Text Boxes
+	id.delete(0, END)
+	patrolname.delete(0, END)
+	leadername.delete(0, END)
+	phone.delete(0, END)
+	phoneid.delete(0, END)
+	query()
+
+# Create Query Function
+def query():
+	#gets patrols from database
+	records = dbmanager.get_patrols()
+	# Loop Thru Results
+	entries = []
+	print_records = ''
+	x = 20
+	for record in records:
+		#Generate boxes and insert values
+		id = Entry(root, width=5)
+		id.grid(row=x, column=0, sticky=W)
+		id.insert(0, str(record[0]))
+		patrolname = Entry(root, width=20)
+		patrolname.grid(row=x, column=0, ipadx=45, sticky=E)
+		patrolname.insert(0, str(record[1]))
+		leadername = Entry(root, width=20)
+		leadername.grid(row=x, column=1, ipadx=30, columnspan=1, sticky=NSEW)
+		leadername.insert(0, str(record[2]))
+		phone = Entry(root, width=10)
+		phone.grid(row=x, column=1, columnspan=1, sticky=E)
+		phone.insert(0, str(record[3]))
+		phoneid = Entry(root, width=5)
+		phoneid.grid(row=x, column=2, sticky=N)
+		phoneid.insert(0, str(record[4]))
+		print (x)
+		x = x+1
+		print_records += str(record[0]) + " "+ "\t"  + str(record[1]) + " " + "\t" + str(record[2]) + " " + "\t" + str(record[3])+  " " + "\n"
+	#print(print_records)
+	#query_label.configure(text=print_records)
+
+def sendsms():
+    root.withdraw()
+    global editor
+    editor = Tk()
+    editor.title('Send SMS')
+    #editor.iconbitmap('c:/gui/codemy.ico')
+    editor.geometry("400x300")
+    # Create a database or connect to one
+    conn = sqlite3.connect('test.db')
+    # Create cursor
+    c = conn.cursor()
+    global record_id
+    record_id = delete_box.get()
+    # Query the database
+    c.execute("SELECT * FROM patrols WHERE id = " + record_id)
+    records = c.fetchall()
+
+    #Create Global Variables for text box names
+    global message_send
+
+    # Create Text Boxes 
+    message_send = Entry(editor, width=30)
+    message_send.grid(row=0, column=1, padx=20, pady=(10, 0))
+
+    # Create Text Box Labels
+    message_send_label = Label(editor, text="Besked")
+    message_send.grid(row=0, column=0, pady=(10, 0))
+
+
+    # Create a Save Button To Save edited record
+    edit_btn = Button(editor, text="Send besked", command=send)
+    edit_btn.grid(row=6, column=0, columnspan=2, pady=10, padx=10, ipadx=145)
+
+def send():
+	record_id = delete_box.get()
+	number = str(dbmanager.get_number(record_id))
+	ATlibrary.sendmessage(number, message_send.get())
+	editor.destroy()
+	root.deiconify()
+
+
+
+# Create Text Boxes
+id = Entry(root, width=30)
+id.grid(row=0, column=1, padx=20, pady=(10, 0))
+patrolname = Entry(root, width=30)
+patrolname.grid(row=1, column=1)
+leadername = Entry(root, width=30)
+leadername.grid(row=2, column=1)
+phone = Entry(root, width=30)
+phone.grid(row=3, column=1)
+phoneid = Entry(root, width=30)
+phoneid.grid(row=4, column=1)
+delete_box = Entry(root, width=30)
+delete_box.grid(row=9, column=1, pady=5)
+
+
+# Create Text Box Labels
+f_name_label = Label(root, text="Patrulje ID")
+f_name_label.grid(row=0, column=0, pady=(10, 0))
+patrolname_label = Label(root, text="Patruljenavn")
+patrolname_label.grid(row=1, column=0)
+leadername_label = Label(root, text="Anfører-navn")
+leadername_label.grid(row=2, column=0)
+phone_label = Label(root, text="Telefonnummer")
+phone_label.grid(row=3, column=0)
+phoneid_label = Label(root, text="Telefon-ID")
+phoneid_label.grid(row=4, column=0)
+delete_box_label = Label(root, text="Select ID")
+delete_box_label.grid(row=9, column=0, pady=5)
+
+# Create Submit Button
+submit_btn = Button(root, text="Tilføj Patrulje", command=submit)
+submit_btn.grid(row=6, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
+
+# Create a Query Button
+query_btn = Button(root, text="Vis patruljer", command=query)
+query_btn.grid(row=7, column=0, columnspan=2, pady=10, padx=75, ipadx=137)
+
+#Create A Delete Button
+delete_btn = Button(root, text="Slet patrulje", command=delete)
+delete_btn.grid(row=10, column=0, columnspan=2, pady=10, padx=10, ipadx=136)
+
+# Create an Update Button
+edit_btn = Button(root, text="Rediger patrulje", command=edit)
+edit_btn.grid(row=11, column=0, columnspan=2, pady=10, padx=10, ipadx=143)
+
+# Create an *SMS button
+edit_btn = Button(root, text="Send besked", command=sendsms)
+edit_btn.grid(row=12, column=0, columnspan=2, pady=10, padx=10, ipadx=143)
+query()
+
+
+
+root.mainloop()

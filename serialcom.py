@@ -13,6 +13,9 @@ def comdetect(): #Searches for avalible ports on system and returns highest port
     for port in ports :
         time.sleep(0.2)
         print('Found port '+ port.device)
+        if modemready(port.device):
+            print("succ")
+        
         
 
     ser = serial.Serial(port.device)
@@ -73,3 +76,4 @@ def cmereturn(port): #used to recieve cme number/index of message in buffer when
 def clearmem(port): #Clears SMS atoreage on the module. This is required as more than 2 consequtive long messages might not be able so send ue to lack of SMS buffer.
     sendcommand("CMGD=4", port, "AT+")
     readline(port)
+#comdetect()
