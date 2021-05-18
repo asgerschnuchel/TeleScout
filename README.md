@@ -9,21 +9,20 @@ Telescout allows the use of a basic featurephone handed out to the individual pa
 # Features
 
 Currently working:
-None :D
-
-Todo:
+Sending SMS messages in GSM mode
+Splitting messages when the protocol lenght limit is reached
 Adding, editing and removal of patrols in GUI
 Enabling database integration for persistent storage between relaunches
 AT command assembler
+
+Todo:
+
 Adding support for placing automated calls
 Adding support for recieving text
-Com port integration
 Manual AT command issueing
-Modem test sequence
 Modem model detection
+Auto com port detection for Mac and Linux
 
 # Requirements
-The following libaries are required
-nums_from_string
-
+Telescout is not dependend on any 3. party libraries, and can be run on any standard python installation
 
