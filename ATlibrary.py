@@ -2,12 +2,12 @@ import serialcom
 import re
 import time
 
-#port = serialcom.comdetect()
+port = serialcom.comdetect()
 
 
 def sendmessage(number, message): #sends message with provided number and message
     port = serialcom.comdetect()
-    #checks if the message is more than 160 characters long, and splits the message if it is. 
+    #checks if the message is more than 150 characters long, and splits the message if it is. 
     serialcom.clearmem(port)
     
     if len(message) >= 150:
@@ -39,5 +39,3 @@ def sendmessage(number, message): #sends message with provided number and messag
     time.sleep(5)
     serialcom.sendcommand("CMSS=" + serialcom.cmereturn(port) + "\r\n", port, "AT+")
     return
-
-#sendmessage(21329977, "hello world")

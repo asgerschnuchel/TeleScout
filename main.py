@@ -37,7 +37,7 @@ def edit():
 	# Query the database
 	#c.execute("SELECT * FROM patrols WHERE id = " + record_id)
 	#records = c.fetchall()
-	records = dbmanager.get_patrols()
+	records = dbmanager.get_patrol(record_id)
 	
 	#Create Global Variables for text box names
 	global f_name_editor
@@ -67,10 +67,10 @@ def edit():
 
 	#Loop thru results
 	for record in records:
-		f_name_editor.insert(0, record[0])
-		l_name_editor.insert(0, record[1])
-		address_editor.insert(0, record[2])
-		city_editor.insert(0, record[3])
+		f_name_editor.insert(0, record[1])
+		l_name_editor.insert(0, record[2])
+		address_editor.insert(0, record[3])
+		city_editor.insert(0, record[4])
 
 	
 	# Create a Save Button To Save edited record
@@ -120,13 +120,16 @@ def submit():
 
 # Create Query Function
 def query():
+	
 	#gets patrols from database
 	records = dbmanager.get_patrols()
 	# Loop Thru Results
 	entries = []
 	print_records = ''
 	x = 20
+
 	for record in records:
+		
 		#Generate boxes and insert values
 		id = Entry(root, width=5)
 		id.grid(row=x, column=0, sticky=W)
@@ -145,16 +148,26 @@ def query():
 		phoneid.insert(0, str(record[4]))
 		print (x)
 		x = x+1
+		clear()
 		print_records += str(record[0]) + " "+ "\t"  + str(record[1]) + " " + "\t" + str(record[2]) + " " + "\t" + str(record[3])+  " " + "\n"
+
+	
 	#print(print_records)
 	#query_label.configure(text=print_records)
+
+def clear():
+	id.delete(0, END)
+	patrolname.delete(0, END)
+	leadername.delete(0, END)
+	phone.delete(0, END)
+	phoneid.delete(0, END)
 
 def sendsms():
     root.withdraw()
     global editor
     editor = Tk()
     editor.title('Send SMS')
-    #editor.iconbitmap('c:/gui/codemy.ico')
+    #editor.iconbitmap('placeholder')
     editor.geometry("400x300")
     # Create a database or connect to one
     conn = sqlite3.connect('test.db')
@@ -182,6 +195,10 @@ def sendsms():
     edit_btn = Button(editor, text="Send besked", command=send)
     edit_btn.grid(row=6, column=0, columnspan=2, pady=10, padx=10, ipadx=145)
 
+	# Create a Save Button To Save edited record
+    sendall_btn = Button(editor, text="Send til alle", command=sendtoall)
+    sendall_btn.grid(row=7, column=0, columnspan=2, pady=10, padx=10, ipadx=145)
+
 def send():
 	record_id = delete_box.get()
 	number = str(dbmanager.get_number(record_id))
@@ -189,6 +206,14 @@ def send():
 	editor.destroy()
 	root.deiconify()
 
+def sendtoall():
+	records = dbmanager.get_patrols()
+	message = message_send.get()
+	for record in records:
+		print(str(record[3]))
+		ATlibrary.sendmessage(str(record[3]), message)
+	editor.destroy()
+	root.deiconify()
 
 
 # Create Text Boxes

@@ -81,7 +81,7 @@ def edit_patrol(newleadername, newpatrolname, newnumber, newphoneid, id):
 def get_patrol(id):
     conn = connect_db("test.db")
     cur = conn.cursor()
-    sql = '''SELECT *, FROM patrols WHERE id = ?'''
+    sql = "SELECT * FROM patrols WHERE id = ?"
     cur.execute(sql, str(id,))
     return cur.fetchall()
 

@@ -14,7 +14,7 @@ def comdetect(): #Searches for avalible ports on system and returns highest port
         time.sleep(0.2)
         print('Found port '+ port.device)
         if modemready(port.device):
-            print("succ")
+            print("Port ready")
         
         
 
@@ -57,7 +57,7 @@ def sendtermination(port): #issues equivilant of ctrl+z on serial connection
 
 def sendcommand(command, port, prefix): #send commmand to serial port. Prefix parameter is applied before the command and is executed as one combined command
     s = serial.Serial(port, timeout=1)
-    print(str(prefix + command + "\r\n"))
+    #print(str(prefix + command + "\r\n"))
     s.write(str(prefix + command + "\r\n").encode())
 
 def cmereturn(port): #used to recieve cme number/index of message in buffer when sending SMS. Returns buffer location of last created sms if used correctly 
@@ -76,4 +76,3 @@ def cmereturn(port): #used to recieve cme number/index of message in buffer when
 def clearmem(port): #Clears SMS atoreage on the module. This is required as more than 2 consequtive long messages might not be able so send ue to lack of SMS buffer.
     sendcommand("CMGD=4", port, "AT+")
     readline(port)
-#comdetect()
